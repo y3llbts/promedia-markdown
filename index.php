@@ -1,31 +1,44 @@
-<?php 
+<?php
     error_reporting(0);
-    $text = $_POST["text"];
-    class myMark {
-        public static $rules = array (
-            '/(#+)(.*)/' => 'self::header',
-            '/(\*\*)(.*?)\1/' => '<strong>\2</strong>', 
-            '/(\*)(.*?)\1/' => '<em>\2</em>' 
-        );
-        private static function header ($regs) {
-            list ($tmp, $chars, $header) = $regs;
-            $level = strlen ($chars);
-            return sprintf ('<h%d>%s</h%d>', $level, trim ($header), $level);
+    $formtext =  new markdown_rules($_POST['text']);
+    $formtext -> format();
+
+    class markdown_rules {
+        public $tags;
+        public $text_format;
+        
+        function __construct($text) {
+            $this -> tags = array (
+                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),
+                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),
+                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),
+                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),
+            );
+            $this -> text_format = $text;
         }
-        public static function render ($text) {
-            $text = "\n" . $text . "\n";
-            foreach (self::$rules as $regex => $replacement) {
-                if (is_callable ($replacement)) {
-                    $text = preg_replace_callback ($regex, $replacement, $text);
-                } else { $text = preg_replace ($regex, $replacement, $text);}
+        public function format() {	
+            foreach ($this -> tags as $key => $value) {
+                $text = $this -> text_format;
+                switch ($value['casenum']) {
+                    case 0:
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
+                        break;
+                    case 1:
+                        $pattern = '/'.$value['regex'].'(.+?)'.$value['regex'].'/s';
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);
+                        break;
+                    case 2:
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';
+                        $replacement = '<'.$value['need'].'>'.'$1';
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
+                        break;
+                }
             }
-            $order = array ("\r\n", "\n", "\r"); 
-            $replace = '<br>';
-            $text = str_replace($order, $replace, $text);
-            return trim ($text);
         }
     }
-    
 ?>
 <html lang="en">
     <head>
@@ -65,25 +78,23 @@
         <div class="split left">
             <form method="post" id="areaform" action="">
                 <div class="form-group">
-                    <label>Введите текст в поле ниже:</label>
+                    <label>Input text in textarea:</label>
                     <hr>
                     <textarea class="form-control" name="text" rows="12"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Подтвердить</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-            <ul>Инструкция:
-                <li><b>#</b> - при появлении в начале строки, строка считается заголовком, до момента переноса на новую строку.</li>
-                <li><b>**..**</b> - помещенный в ** текст, становится жирным.</li>
-                <li><b>*..*</b> - помещенный в * текст, становится курсивом.</li>
+            <ul>Instruction:
+                <li># - Header transform.</li>
+                <li>**...** - Bold transform.</li>
+                <li>*...* - Italic transform.</li>
             </ul>
         </div>
         <!--Блок вывода форматнутого текста-->
         <div class="split right">
-            <label>Отформатированный текст:</label>
+            <label>Formatted Text:</label>
             <hr>
-            <div id="result_form">
-                <?php echo (myMark::render($text)); ?>
-            </div>
+            <div id="result_form"> <?php print_r($formtext -> text_format); ?> </div>
         </div>
     </body>
 </html>
