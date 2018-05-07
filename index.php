@@ -4,15 +4,15 @@
     $formtext -> format();
 
     class markdown_rules {
-        public $tags;
+        public $tags;           // Array with replacement data
         public $text_format;
         
         function __construct($text) {
             $this -> tags = array (
-                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),
-                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),
-                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),
-                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),
+                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),  // need - is html tag, regex - regular expression
+                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),         // casenum - value of switch
+                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),        // easy to modify
+                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),        // add tag and regex with casenum and make a case with this value
             );
             $this -> text_format = $text;
         }
@@ -21,9 +21,9 @@
                 $text = $this -> text_format;
                 switch ($value['casenum']) {
                     case 0:
-                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';
-                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';
-                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';                          // Pattern - string in your text
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';     // Replacement - what do you want to replace
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);     // Replacement function
                         break;
                     case 1:
                         $pattern = '/'.$value['regex'].'(.+?)'.$value['regex'].'/s';
@@ -43,8 +43,9 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta author="Mikhail Sidorchuk">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>WYSWYG</title>
+        <title>Markdown Editor</title>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         
@@ -74,7 +75,7 @@
         </style>    
     </head>
     <body>
-        <!--Блок ввода текста пользователем-->
+        <!--Input text from user div-->
         <div class="split left">
             <form method="post" id="areaform" action="">
                 <div class="form-group">
@@ -90,7 +91,7 @@
                 <li>*...* - Italic transform.</li>
             </ul>
         </div>
-        <!--Блок вывода форматнутого текста-->
+        <!--Output formatted text from form div-->
         <div class="split right">
             <label>Formatted Text:</label>
             <hr>
