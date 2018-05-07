@@ -1,3 +1,4 @@
+<!doctype html>
 <?php
     error_reporting(0);
     $formtext =  new markdown_rules($_POST['text']);
@@ -40,7 +41,7 @@
         }
     }
 ?>
-<!doctype html>
+
 <html lang="en">
     <head>
         <meta charset="utf-8">
