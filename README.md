@@ -1,4 +1,4 @@
-#A simple markdown editor.
+A simple markdown editor.
 
 That's all that the app can do:
 ```php
