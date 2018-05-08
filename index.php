@@ -4,15 +4,20 @@
     $formtext -> format();
 
     class markdown_rules {
-        public $tags;           // Array with replacement data
+        public $tags;          
         public $text_format;
         
         function __construct($text) {
             $this -> tags = array (
-                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),  // need - is html tag, regex - regular expression
-                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),         // casenum - value of switch
-                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),        // easy to modify
-                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),        // add tag and regex with casenum and make a case with this value
+                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),
+                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),       
+                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),
+                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),
+                array ('need' => 'li', 'regex' => '\-', 'casenum' => 2),
+                array ('need' => 'mark', 'regex' => '\$', 'casenum' => 2),
+                array ('need' => 'del', 'regex' => '\@', 'casenum' => 2),
+                array ('need' => 'small', 'regex' => '\&', 'casenum' => 2),
+                array ('need' => 'big', 'regex' => '\!', 'casenum' => 2)
             );
             $this -> text_format = $text;
         }
@@ -21,9 +26,9 @@
                 $text = $this -> text_format;
                 switch ($value['casenum']) {
                     case 0:
-                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';                          // Pattern - string in your text
-                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';     // Replacement - what do you want to replace
-                        $this -> text_format = preg_replace($pattern, $replacement, $text);     // Replacement function
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';                         
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';     
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
                         break;
                     case 1:
                         $pattern = '/'.$value['regex'].'(.+?)'.$value['regex'].'/s';
@@ -85,11 +90,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-            <ul>Instruction:
-                <li># - Header transform.</li>
-                <li>**...** - Bold transform.</li>
-                <li>*...* - Italic transform.</li>
-            </ul>
         </div>
         <!--Output formatted text from form div-->
         <div class="split right">
