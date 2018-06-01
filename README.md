@@ -1,3 +1,5 @@
+# Simple Markdown
+
 A simple markdown editor.
 
 That's all that the app can do:
@@ -13,4 +15,3 @@ That's all that the app can do:
 ('need' => 'big', 'regex' => '\!', 'casenum' => 2)        // ! = <big>
 ```
 
-P.S. I am just learning.
