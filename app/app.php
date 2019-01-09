@@ -1,29 +1,45 @@
-<?
-    if (isset($_POST["text"])) { 
-        $result =  $_POST["text"];
-    }
-    class myMark {
-        public static $rules = array (
-            '/(#+)(.*)/' => 'self::header',
-            '/(\*\*)(.*?)\1/' => '<strong>\2</strong>', 
-            '/(\*)(.*?)\1/' => '<em>\2</em>' 
-        );
-        private static function header ($regs) {
-            list ($tmp, $chars, $header) = $regs;
-            $level = strlen ($chars);
-            return sprintf ('<h%d>%s</h%d>', $level, trim ($header), $level);
+<?php
+error_reporting(0);
+    $formtext =  new markdown_rules($_POST['text']);
+    $formtext -> format();
+    class markdown_rules {
+        public $tags;          
+        public $text_format;
+        
+        function __construct($text) {
+            $this -> tags = array (
+                array ('need' => 'strong', 'regex' => '\*\*', 'casenum' => 1),
+                array ('need' => 'i', 'regex' => '\*', 'casenum' => 1),       
+                array ('need' => 'h1', 'regex' => '\#', 'casenum' => 0),
+                array ('need' => 'br', 'regex' => '\n', 'casenum' => 2),
+                array ('need' => 'li', 'regex' => '\-', 'casenum' => 2),
+                array ('need' => 'mark', 'regex' => '\$', 'casenum' => 2),
+                array ('need' => 'del', 'regex' => '\@', 'casenum' => 2),
+                array ('need' => 'small', 'regex' => '\&', 'casenum' => 2),
+                array ('need' => 'big', 'regex' => '\!', 'casenum' => 2)
+            );
+            $this -> text_format = $text;
         }
-        public static function render ($result) {
-            $result = "\n" . $result . "\n";
-            foreach (self::$rules as $regex => $replacement) {
-                if (is_callable ($replacement)) {
-                    $result = preg_replace_callback ($regex, $replacement, $result);
-                } else { $result = preg_replace ($regex, $replacement, $result);}
+        public function format() {	
+            foreach ($this -> tags as $key => $value) {
+                $text = $this -> text_format;
+                switch ($value['casenum']) {
+                    case 0:
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';                         
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';     
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
+                        break;
+                    case 1:
+                        $pattern = '/'.$value['regex'].'(.+?)'.$value['regex'].'/s';
+                        $replacement = '<'.$value['need'].'>'.'$1'.'</'.$value['need'].'>';
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);
+                        break;
+                    case 2:
+                        $pattern = '/'.$value['regex'].'([^\*\v]+)/s';
+                        $replacement = '<'.$value['need'].'>'.'$1';
+                        $this -> text_format = preg_replace($pattern, $replacement, $text);  
+                        break;
+                }
             }
-            $order = array ("\r\n", "\n", "\r"); 
-            $replace = '<br>';
-            $result = str_replace($order, $replace, $result);
-            return trim ($result);
         }
     }
-?>
